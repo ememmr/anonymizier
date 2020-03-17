@@ -65,9 +65,6 @@ def main():
     print("record:", test_anon.iloc[:, :-1], sep='\n')
     print("prediction: ", predictions_anon, sep='\n')
 
-
-
-
     print("... process ended.")
 
 
