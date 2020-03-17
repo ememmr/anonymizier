@@ -1,0 +1,74 @@
+import pandas as pd
+import utils as ut
+from sklearn import neighbors
+from sklearn.metrics import mean_squared_error
+
+
+def main():
+    dir = "data/"
+    original = "data_original.csv"
+    anon = "data_anon.csv"
+    n_neighbors = 2
+
+    print("Starting process...")
+
+    print("Taking default configuration and data.")
+    print("- file directory: " + dir)
+    print("- full data file name: " + original)
+    print("- anonymizied data file name: " + anon)
+    print("- model: linear model")
+
+    print("Start reading... " + dir + original)
+    df_orig = pd.read_csv(dir + original).drop('name', axis=1)
+    df_orig['age'] = df_orig['age'].astype(int)
+    df_orig['cp'] = df_orig['cp'].astype(int)
+    df_orig['gender'] = df_orig['gender'].replace('F', '1', regex=True).replace('M', '0', regex=True).astype(int)
+    df_orig['got_virus'] = df_orig['got_virus'].replace('y', '1', regex=True).replace('n', '0', regex=True).astype(int)
+    print(df_orig.head(1))
+
+    print("...and... " + dir + anon)
+    df_anon = pd.read_csv(dir + anon)
+    df_anon['age'] = df_anon['age'].astype(int)
+    df_anon['cp'] = df_anon['cp'].replace('\*', '', regex=True).astype(int)
+    df_anon['gender'] = df_anon['gender'].replace('F', '1', regex=True).replace('M', '0', regex=True).astype(int)
+    df_anon['got_virus'] = df_anon['got_virus'].replace('y', '1', regex=True).replace('n', '0', regex=True).astype(int)
+    print(df_anon.head(1))
+
+    print("Split full dataframe: ")
+    [train, test] = ut.splitter(df_orig, 0.8, 0.2)
+
+    print("Split anon dataframe: ")
+    [train_anon, test_anon] = ut.splitter(df_anon, 0.8, 0.2)
+
+    print("Create model")
+    model = neighbors.KNeighborsRegressor(n_neighbors=n_neighbors, weights='uniform')
+
+    print("Fit and predict")
+    # fit and predict with full data
+    model.fit(X=train.iloc[:, :-1], y=train.iloc[:, -1])
+    predictions_full = model.predict(X=test.iloc[:, :-1])
+
+    # fit and predict with full data
+    model.fit(X=train_anon.iloc[:, :-1], y=train_anon.iloc[:, -1])
+    predictions_anon = model.predict(X=test_anon.iloc[:, :-1])
+
+    print("Measuring result")
+    mse_full = mean_squared_error(test.iloc[:, -1], predictions_full)
+    print('MSE', mse_full)
+    mse_anon = mean_squared_error(test_anon.iloc[:, -1], predictions_anon)
+    print('MSE', mse_anon)
+
+    print("Show results")
+    print("record:", test.iloc[:, :-1], sep='\n')
+    print("prediction: ", predictions_full, sep='\n')
+
+    print("record:", test_anon.iloc[:, :-1], sep='\n')
+    print("prediction: ", predictions_anon, sep='\n')
+
+
+
+
+    print("... process ended.")
+
+
+main()
