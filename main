@@ -9,6 +9,7 @@ def main():
     dir = "data/"
     original = "data_original.csv"
     anon = "data_anon.csv"
+    anon2 = "data_anon_2.csv"
     n_neighbors = 2
 
     print("Starting process...")
@@ -21,26 +22,29 @@ def main():
 
     print("Start reading... " + dir + original)
     df_orig = pd.read_csv(dir + original).drop('name', axis=1)
-    df_orig['age'] = df_orig['age'].astype(int)
-    df_orig['cp'] = df_orig['cp'].astype(int)
-    df_orig['gender'] = df_orig['gender'].replace('F', '1', regex=True).replace('M', '0', regex=True).astype(int)
-    df_orig['got_virus'] = df_orig['got_virus'].replace('y', '1', regex=True).replace('n', '0', regex=True).astype(int)
+    df_orig = ut.exampleCleaner(df_orig)
     print(df_orig.head(1))
 
     print("...and... " + dir + anon)
     df_anon = pd.read_csv(dir + anon)
-    df_anon['age'] = df_anon['age'].astype(int)
-    df_anon['cp'] = df_anon['cp'].replace('\*', '', regex=True).astype(int)
-    df_anon['gender'] = df_anon['gender'].replace('F', '1', regex=True).replace('M', '0', regex=True).astype(int)
-    df_anon['got_virus'] = df_anon['got_virus'].replace('y', '1', regex=True).replace('n', '0', regex=True).astype(int)
+    df_anon = ut.exampleCleaner(df_anon)
     print(df_anon.head(1))
+
+    print("...and... " + dir + anon2)
+    df_anon2 = pd.read_csv(dir + anon2)
+    df_anon2 = ut.exampleCleaner(df_anon2)
+    print(df_anon2.head(1))
+
+    listed_data = [df_orig, df_anon, df_anon2]
 
     print("Create model")
     model = neighbors.KNeighborsRegressor(n_neighbors=n_neighbors, weights='uniform')
 
-    print("Compare model with both data")
-    measure(df_orig, df_anon, 0.8, model, mean_squared_error)
+    print("Compare model with both data type (anonimizied and not)")
+    for d in listed_data:
+        measure(d, 0.8, model, mean_squared_error)
 
     print("... process ended.")
+
 
 main()

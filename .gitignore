@@ -4,3 +4,7 @@
 /out/
 .idea_modules/
 .idea/workspace.xml
+*.xml
+__pycache__/comparisor.cpython-37.pyc
+*.pyc
+*.pyc
