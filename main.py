@@ -1,6 +1,8 @@
 import pandas as pd
 import utils as ut
-from sklearn import neighbors
+from sklearn import linear_model
+
+
 from sklearn.metrics import mean_squared_error
 from comparisor import measure
 
@@ -10,7 +12,7 @@ def main():
     original = "data_original.csv"
     anon = "data_anon.csv"
     anon2 = "data_anon_2.csv"
-    n_neighbors = 2
+
 
     print("Starting process...")
 
@@ -35,14 +37,15 @@ def main():
     df_anon2 = ut.exampleCleaner(df_anon2)
     print(df_anon2.head(1))
 
-    listed_data = [df_orig, df_anon, df_anon2]
+    listed_data = [("0", df_orig), ("1", df_anon), ("2", df_anon2)]
+    listed_measures = [mean_squared_error] #if the user wants to add manually their own measure
 
     print("Create model")
-    model = neighbors.KNeighborsRegressor(n_neighbors=n_neighbors, weights='uniform')
+    model = linear_model.LogisticRegression()
 
     print("Compare model with both data type (anonimizied and not)")
-    for d in listed_data:
-        measure(d, 0.8, model, mean_squared_error)
+
+    measure(listed_data, 0.8, model)
 
     print("... process ended.")
 
